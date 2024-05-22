@@ -1,6 +1,7 @@
 import numpy as np
 import pyproximal
 import matplotlib.pyplot as plt
+import util
 from Optimizer import BALM, DP_BALM, FW_BALM, FW_DP_BALM, FW_ALM
 
 A = np.array([[1, 2, -3, 4, 5, 6, 7, 8],
@@ -13,16 +14,22 @@ A = np.array([[1, 2, -3, 4, 5, 6, 7, 8],
             [71, 72, 73, 74, 75, 76, 77, 78]])
 b = np.array([ 186,  542,  458 ,1012, 1644, 1686, 1714, 2724])
 
-obj_f = pyproximal.Quadratic()
+A, b, _ = util.generate_test_constraint(10)
+obj_f = pyproximal.L1()
 
 def f(x):
-    return x.T @ x
+    return np.sum(np.abs(x))
 def grad_f(x):
-    return 2*x
+    return np.sign(x)
 
 opt_BALM = BALM(obj_f, None, A, b)
 opt_DP_BALM = DP_BALM(obj_f, None, A, b, alpha=1.3)
 opt_FW_BALM = FW_BALM(f, grad_f, A, b)
 opt_FW_DP_BALM = FW_DP_BALM(f, grad_f, A, b, alpha=1.3)
 
-opt_BALM.optimize()
+x, lamb = opt_BALM.optimize()
+print(np.allclose(b, A@x))
+print(f(x))
+x, lamb = opt_FW_BALM.optimize()
+print(np.allclose(b, A@x))
+print(f(x))
