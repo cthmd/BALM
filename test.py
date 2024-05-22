@@ -13,7 +13,7 @@ A = np.array([[1, 2, -3, 4, 5, 6, 7, 8],
             [71, 72, 73, 74, 75, 76, 77, 78]])
 b = np.array([ 186,  542,  458 ,1012, 1644, 1686, 1714, 2724])
 
-obj_f = pyproximal.L1()
+obj_f = pyproximal.Quadratic()
 
 def f(x):
     return x.T @ x
