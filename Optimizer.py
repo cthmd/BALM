@@ -57,6 +57,8 @@ class BALM:
             self.history.append(self.calculate_improvement(x, x_new))
             print(f"iteration {i}: {x}")
             if self.stop(x, x_new):
+                x = x_new
+                lamb = lamb_new
                 break
             x = x_new
             lamb = lamb_new
@@ -94,13 +96,14 @@ class FW_BALM(BALM):
         return self.obj_f(x) + self.r/2 * np.linalg.norm(x - q0k, ord=2)**2
 
     def lagrangian_grad(self, x, q0k):
-        return self.obj_grad(x) + self.r/2 * np.linalg.norm(x - q0k, ord=2)
+        return self.obj_grad(x) + self.r * np.linalg.norm(x - q0k, ord=2)
 
     def primal_update(self, x, lamb):
         q0k = self.calculate_q0k(x, lamb)
         grad_L_eval = self.lagrangian_grad(x, q0k)
         lmo = linprog(c=grad_L_eval, A_eq=self.A, b_eq=self.b)
         s = lmo.x
+        print(lmo.nit)
         gamma_opt = minimize(lambda g: self.lagrangian(x + g * (s - x), q0k), 0, bounds=[(0, 1)])
         gamma = gamma_opt.x
         x_new = (1 - gamma) * x + gamma * s
@@ -114,7 +117,7 @@ class FW_ALM(FW_BALM):
         return self.obj_f(x) + np.dot(lamb, self.A @ x - self.b) + self.r/2 * np.linalg.norm(self.A @ x - self.b)**2
 
     def lagrangian_grad(self, x, lamb):
-        return self.obj_grad(x) + np.dot(self.A.T, lamb) + self.r/2 * np.dot(self.A.T, self.A @ x - self.b)
+        return self.obj_grad(x) + np.dot(self.A.T, lamb) + self.r * np.dot(self.A.T, self.A @ x - self.b)
 
     def primal_update(self, x, lamb):
         grad_L_eval = self.lagrangian_grad(x, lamb)
