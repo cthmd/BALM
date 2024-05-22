@@ -14,6 +14,7 @@ class BALM:
             self.x = np.ones_like(b)
         if lamb == None:
             self.lamb = np.ones_like(b)
+        self.r = r
         self.max_run = max_run
         self.history = []
         self.stopping_error = stopping_error
@@ -23,8 +24,7 @@ class BALM:
 
     def primal_update(self, x, lamb):
         q0k = x + (1/self.r) * self.A.T @ lamb
-        quad = pyproximal.Quadratic(Op=pylops.MatrixMult(np.identity(H0.shape[0])))
-        x_new = pyproximal.optimization.primal.ProximalPoint(quad, q0k, self.r, show=False, niter=1)
+        x_new = self.obj_f.prox(q0k, self.r)
         return x_new
 
     def dual_update(self, x, x_new, lamb):
@@ -37,9 +37,10 @@ class BALM:
 
     def stop(self, old, new):
         improvement = self.calculate_improvement(old, new)
-        return (improvement < stopping_error)
+        return (improvement < self.stopping_error)
 
     def optimize(self):
+        print("starting")
         x = self.x
         lamb = self.lamb
         for i in range(self.max_run):
@@ -51,7 +52,8 @@ class BALM:
             
             # update
             self.history.append(self.calculate_improvement(x, x_new))
-            if self.stop:
+            print(f"iteration {i}: {x}")
+            if self.stop(x, x_new):
                 break
             x = x_new
             lamb = lamb_new
@@ -60,4 +62,16 @@ class BALM:
         self.lamb = lamb
         return self.x, self.lamb
 
+A = np.array([[1, 2, -3, 4, 5, 6, 7, 8],
+            [-11, 12, 13, 14, 15, 16, 17, 18],
+            [21, -22, 23, 24, 25, 26, -27, 28],
+            [31, 32, 33, -34, 35, 36, 37, 38],
+            [41, 42, 43, 44, 45, 46, 47, 48],
+            [51, 52, -53, 54, 55, 56, 57, 58],
+            [61, 62, 63, 64, -65, 66, 67, 68], 
+            [71, 72, 73, 74, 75, 76, 77, 78]])
+b = np.array([ 186,  542,  458 ,1012, 1644, 1686, 1714, 2724])
 
+obj_f = pyproximal.Quadratic()
+opt = BALM(obj_f, None, A, b)
+opt.optimize()
