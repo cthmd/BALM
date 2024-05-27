@@ -11,7 +11,7 @@ class BALM:
         self.A = A
         self.b = b
         if x == None:
-            self.x = np.ones_like(b)
+            self.x = np.ones_like(A[0])
         if lamb == None:
             self.lamb = np.ones_like(b)
         self.r = r
