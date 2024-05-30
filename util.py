@@ -28,12 +28,6 @@ def f_quad(x):
 def grad_quad(x):
     return x
 
-def f_linear(x):
-    return x
-
-def grad_linear(x):
-    return np.ones_like(x)
-
 class MyProx(pyproximal.proximal.Nonlinear):
     def __init__(self, x0, niter=10, warm=True, f=None, grad=None):
         super().__init__(x0, niter=10, warm=True)
@@ -51,8 +45,7 @@ class MyProx(pyproximal.proximal.Nonlinear):
         sol = minimize(lambda x: self._funprox(x, self.tau),
                                    x0=self.x0,
                                    jac=lambda x: self._gradprox(x, self.tau),
-                                   method='L-BFGS-B', callback=callback,
-                                   options=dict(maxiter=15))
+                                   method='L-BFGS-B', callback=callback)
         sol = sol.x
 
         self.solhist = np.array(self.solhist)
