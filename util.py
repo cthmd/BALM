@@ -10,17 +10,17 @@ def generate_test_constraint(m, n=None):
     b = A @ x
     return A, b, x
 
-def f_L1(x, M=None):
-    if M == None:
-        return np.sum(np.abs(x))
-    else:
-        return np.sum(np.abs(M @ x))
+def f_L1(x):
+    return np.sum(np.abs(x))
 
-def grad_L1(x, M=None):
-    if M == None:
-        return np.sign(x)
-    else:
-        return np.sign(M @ x)
+def grad_L1(x):
+    return np.sign(x)
+    
+def f_affine_L1(x, M):
+    return np.sum(np.abs(M @ x))
+
+def grad_affine_L1(x, M):
+    return np.sign(M @ x)
 
 def f_quad(x):
     return 0.5 * x.T @ x
@@ -33,12 +33,15 @@ class MyProx(pyproximal.proximal.Nonlinear):
         super().__init__(x0, niter=10, warm=True)
         self.f = f
         self.grad = grad
+
     def fun(self, x):
         return self.f(x)
+    
     def grad(self, x):
         return self.grad(x)
+    
     def optimize(self):
-         def callback(x):
+        def callback(x):
             self.solhist.append(x)
         self.solhist = []
         self.solhist.append(self.x0)
@@ -50,3 +53,4 @@ class MyProx(pyproximal.proximal.Nonlinear):
 
         self.solhist = np.array(self.solhist)
         return sol
+    
