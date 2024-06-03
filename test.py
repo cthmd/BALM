@@ -6,7 +6,7 @@ from Optimizer import BALM, DP_BALM, FW_BALM, FW_DP_BALM, FW_ALM
 
 
 
-A, b, _ = util.generate_test_constraint(10, 10)
+A, b, _ = util.generate_test_constraint(10, 20)
 affineL1 = util.MyProx(x0=np.ones_like(A[0]), f=util.f_L1, grad=util.grad_L1)
 problem = affineL1
 
