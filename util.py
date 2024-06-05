@@ -29,16 +29,16 @@ def grad_quad(x):
     return x
 
 class MyProx(pyproximal.proximal.Nonlinear):
-    def __init__(self, x0, niter=10, warm=True, f=None, grad=None):
+    def __init__(self, x0, niter=10, warm=True, f=None, g=None):
         super().__init__(x0, niter=10, warm=True)
         self.f = f
-        self.grad = grad
+        self.grad = g
 
     def fun(self, x):
         return self.f(x)
     
     def grad(self, x):
-        return self.grad(x)
+        return self.g(x)
     
     def optimize(self):
         def callback(x):

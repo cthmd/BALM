@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize, linprog
 
 class BALM:
-    def __init__(self, obj_f, obj_grad, A, b, x=None, lamb=None, r=1, delta=0.001, max_run=100, stopping_error=1e-6):
+    def __init__(self, obj_f, obj_grad, A, b, x=None, lamb=None, r=1, delta=0.001, max_run=1000, stopping_error=1e-6):
         self.obj_f = obj_f
         self.obj_grad = obj_grad
         self.A = A
@@ -73,7 +73,7 @@ class DP_BALM(BALM):
         self.alpha = alpha
     
     def calculate_q0k(self, x, lamb, lamb_bar):
-        q0k = x + (1/self.r) * A.T @ (2 * lamb_bar - lamb)
+        q0k = x + (1/self.r) * self.A.T @ (2 * lamb_bar - lamb)
         return q0k
     
     def primal_update(self, x, lamb):
@@ -101,7 +101,7 @@ class FW_BALM(BALM):
     def primal_update(self, x, lamb):
         q0k = self.calculate_q0k(x, lamb)
         grad_L_eval = self.lagrangian_grad(x, q0k)
-        lmo = linprog(c=grad_L_eval, A_eq=self.A, b_eq=self.b)
+        lmo = linprog(c=grad_L_eval, A_eq=self.A, b_eq=self.b, bounds=(0, None), method='simplex')
         s = lmo.x
         print(lmo.nit)
         gamma_opt = minimize(lambda g: self.lagrangian(x + g * (s - x), q0k), 0, bounds=[(0, 1)])
