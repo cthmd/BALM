@@ -50,7 +50,7 @@ class MyProx(pyproximal.proximal.Nonlinear):
                                    jac=lambda x: self._gradprox(x, self.tau),
                                    method='L-BFGS-B', callback=callback)
         sol = sol.x
-
+        print(len(self.solhist))
         self.solhist = np.array(self.solhist)
         return sol
     
