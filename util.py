@@ -1,6 +1,10 @@
 import numpy as np
 import pyproximal
 from scipy.optimize import minimize
+from scipy.fftpack import dct, idct
+
+def normialise(x):
+    return (x - np.min(x)) / (np.max(x) - np.min(x))
 
 def generate_test_constraint(m, n=None):
     if n == None:
@@ -11,7 +15,7 @@ def generate_test_constraint(m, n=None):
     return A, b, x
 
 def f_L1(x):
-    return np.sum(np.abs(x))
+    return np.linalg.norm(x, ord=1)
 
 def grad_L1(x):
     return np.sign(x)
@@ -27,6 +31,12 @@ def f_quad(x):
 
 def grad_quad(x):
     return x
+
+def dct2(x):
+    return dct(dct(x.T, norm='ortho', axis=0).T, norm='ortho', axis=0)
+
+def idct2(x):
+    return idct(idct(x.T, norm='ortho', axis=0).T, norm='ortho', axis=0)
 
 class MyProx(pyproximal.proximal.Nonlinear):
     def __init__(self, x0, niter=10, warm=True, f=None, g=None):
@@ -50,7 +60,7 @@ class MyProx(pyproximal.proximal.Nonlinear):
                                    jac=lambda x: self._gradprox(x, self.tau),
                                    method='L-BFGS-B', callback=callback)
         sol = sol.x
-        print(len(self.solhist))
+        #print(len(self.solhist))
         self.solhist = np.array(self.solhist)
         return sol
     
